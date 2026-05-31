@@ -1,0 +1,110 @@
+<div class="space-y-6">
+    
+    <div class="bg-slate-900 p-6 rounded-2xl border border-slate-800">
+        <h3 class="text-xl font-bold text-slate-100 mb-4">
+            {{ isEditMode ? '✏️ Editar Categoría' : '✨ Nueva Categoría' }}
+        </h3>
+        
+        <form (ngSubmit)="submitForm()" #formEsp="ngForm" class="grid grid-cols-1 md:grid-cols-3 gap-4 items-end">
+            <div>
+                <label class="block text-sm text-slate-400 mb-2">Nombre</label>
+                <input type="text" name="nom" [(ngModel)]="categoryForm.nombre" required
+                    class="w-full px-4 py-2.5 rounded-xl border border-slate-700 bg-slate-800 text-slate-100 focus:outline-none focus:border-emerald-500 transition-all">
+            </div>
+            
+            <div>
+                <label class="block text-sm text-slate-400 mb-2">Límite por Bloque</label>
+                <input type="number" name="limite" [(ngModel)]="categoryForm.limitePorBloque" required
+                    class="w-full px-4 py-2.5 rounded-xl border border-slate-700 bg-slate-800 text-slate-100 focus:outline-none focus:border-emerald-500 transition-all">
+            </div>
+            
+            <div class="flex gap-2">
+                <button type="submit" [disabled]="!formEsp.valid"
+                        class="flex-1 bg-emerald-600 text-slate-950 font-bold py-2.5 rounded-xl hover:bg-emerald-500 transition-all disabled:opacity-30 transform active:scale-[0.99]">
+                    {{ isEditMode ? 'Actualizar' : 'Guardar' }}
+                </button>
+
+                <button *ngIf="isEditMode" type="button" (click)="resetForm()" title="Cancelar edición"
+                        class="px-4 bg-slate-800 text-slate-300 font-medium py-2.5 rounded-xl hover:bg-slate-700 transition-all border border-slate-700 transform active:scale-[0.99]">
+                    ❌
+                </button>
+            </div>
+        </form>
+    </div>
+
+    <div class="bg-slate-900 p-6 rounded-2xl border border-slate-800">
+        
+        <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-6">
+            <h3 class="text-xl font-bold text-slate-100">Registros Existentes</h3>
+            
+            <div class="w-full md:w-72">
+                <input type="text" name="search" [(ngModel)]="filterSearch" placeholder="🔍 Buscar categoría..." 
+                    class="w-full px-4 py-2 rounded-xl border border-slate-700 bg-slate-800 text-slate-100 placeholder:text-slate-500 focus:outline-none focus:border-emerald-500 transition-all text-sm">
+            </div>
+        </div>
+        
+        <div class="overflow-x-auto">
+            <table class="w-full text-left border-collapse">
+                <thead>
+                    <tr class="border-b border-slate-800 text-slate-400 text-sm select-none">
+                        
+                        <th (click)="toggleSort('id')" class="py-3 px-4 w-32 cursor-pointer hover:text-slate-200 transition-all">
+                            <div class="flex items-center gap-1.5 relative">
+                                <span>ID</span>
+                                <span class="w-4 text-center text-xs text-emerald-500 transition-all duration-150"
+                                    [class.opacity-0]="sortField !== 'id'">
+                                    {{ sortDirection === 'asc' ? '▲' : '▼' }}
+                                </span>
+                            </div>
+                        </th>
+                        
+                        <th (click)="toggleSort('nombre')" class="py-3 px-4 cursor-pointer hover:text-slate-200 transition-all">
+                            <div class="flex items-center gap-1.5 relative">
+                                <span>Nombre</span>
+                                <span class="w-4 text-center text-xs text-emerald-500 transition-all duration-150"
+                                    [class.opacity-0]="sortField !== 'nombre'">
+                                    {{ sortDirection === 'asc' ? '▲' : '▼' }}
+                                </span>
+                            </div>
+                        </th>
+                        
+                        <th (click)="toggleSort('limitePorBloque')" class="py-3 px-4 cursor-pointer hover:text-slate-200 transition-all">
+                            <div class="flex items-center gap-1.5 relative">
+                                <span>Límite por Bloque</span>
+                                <span class="w-4 text-center text-xs text-emerald-500 transition-all duration-150"
+                                    [class.opacity-0]="sortField !== 'limitePorBloque'">
+                                    {{ sortDirection === 'asc' ? '▲' : '▼' }}
+                                </span>
+                            </div>
+                        </th>
+                        
+                        <th class="py-3 px-4 text-center w-32">Acciones</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-slate-800/50 text-slate-300">
+                    <tr *ngFor="let cat of categoriesList" 
+                        [class.hidden]="filterSearch && 
+                                        !cat.nombre.toLowerCase().includes(filterSearch.toLowerCase()) && 
+                                        !cat.limitePorBloque.toString().includes(filterSearch)"
+                        class="hover:bg-slate-800/30 transition-all">
+                        <td class="py-4 px-4 font-mono text-sm text-slate-500">{{ cat.id }}</td>
+                        <td class="py-4 px-4 font-semibold text-slate-200">{{ cat.nombre }}</td>
+                        <td class="py-4 px-4 text-slate-400">{{ cat.limitePorBloque }}</td>
+                        
+                        <td class="py-4 px-4 text-center space-x-1">
+                            <button (click)="selectToEdit(cat)" title="Editar" 
+                                    class="p-2 text-blue-400 hover:bg-blue-950/40 rounded-lg transition-all transform active:scale-95">
+                                ✏️
+                            </button>
+                            <button (click)="deleteCategory(cat.id)" title="Eliminar" 
+                                    class="p-2 text-red-400 hover:bg-red-950/40 rounded-lg transition-all transform active:scale-95">
+                                🗑️
+                            </button>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+</div>

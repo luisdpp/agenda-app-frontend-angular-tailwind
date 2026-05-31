@@ -1,0 +1,29 @@
+<div class="flex min-h-screen bg-slate-950 text-slate-100">
+    
+    <aside class="w-64 bg-slate-900 border-r border-slate-800 p-6 flex flex-col justify-between">
+        <div>
+            <h2 class="text-xl font-bold text-emerald-500 mb-8 px-2">Agenda Admin</h2>
+        
+            <nav class="space-y-2">
+                <a routerLink="/dashboard/categorias" routerLinkActive="bg-slate-800 text-emerald-400" 
+                class="flex items-center px-4 py-3 rounded-xl hover:bg-slate-800/50 transition-all font-medium text-slate-300">
+                    Categorias
+                </a>
+                <a routerLink="/dashboard/bloques" routerLinkActive="bg-slate-800 text-emerald-400" 
+                class="flex items-center px-4 py-3 rounded-xl hover:bg-slate-800/50 transition-all font-medium text-slate-300">
+                    Bloques
+                </a>
+            </nav>
+        </div>
+
+        <button (click)="logout()" 
+                class="w-full text-left px-4 py-3 rounded-xl text-red-400 hover:bg-red-950/20 hover:text-red-300 transition-all font-medium">
+            Cerrar Sesión
+        </button>
+    </aside>
+
+    <main class="flex-1 p-8 bg-slate-950 overflow-y-auto">
+        <router-outlet></router-outlet> 
+    </main>
+
+</div>
