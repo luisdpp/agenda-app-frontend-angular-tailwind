@@ -2,16 +2,28 @@
     
     <aside class="w-64 bg-slate-900 border-r border-slate-800 p-6 flex flex-col justify-between">
         <div>
-            <h2 class="text-xl font-bold text-emerald-500 mb-8 px-2">Agenda Admin</h2>
+            <h2 class="text-xl font-bold text-emerald-500 mb-8 px-2">Agenda</h2>
         
             <nav class="space-y-2">
-                <a routerLink="/dashboard/categorias" routerLinkActive="bg-slate-800 text-emerald-400" 
+
+                <a *ngIf="userRole === 'ADMIN'" routerLink="/dashboard/inicio" routerLinkActive="bg-slate-800 text-emerald-400" 
                 class="flex items-center px-4 py-3 rounded-xl hover:bg-slate-800/50 transition-all font-medium text-slate-300">
-                    Categorias
+                    📊 Dashboard
                 </a>
-                <a routerLink="/dashboard/bloques" routerLinkActive="bg-slate-800 text-emerald-400" 
+
+                <a *ngIf="userRole === 'ADMIN'" routerLink="/dashboard/categorias" routerLinkActive="bg-slate-800 text-emerald-400" 
                 class="flex items-center px-4 py-3 rounded-xl hover:bg-slate-800/50 transition-all font-medium text-slate-300">
-                    Bloques
+                    Categorías
+                </a>
+                
+                <a *ngIf="userRole === 'ADMIN'" routerLink="/dashboard/bloques" routerLinkActive="bg-slate-800 text-emerald-400" 
+                class="flex items-center px-4 py-3 rounded-xl hover:bg-slate-800/50 transition-all font-medium text-slate-300">
+                    Bloques de Horarios
+                </a>
+
+                <a routerLink="/dashboard/citas" routerLinkActive="bg-slate-800 text-emerald-400" 
+                class="flex items-center px-4 py-3 rounded-xl hover:bg-slate-800/50 transition-all font-medium text-slate-300">
+                    {{ userRole === 'ADMIN' ? 'Control de Citas' : 'Agendar mi Cita' }}
                 </a>
             </nav>
         </div>

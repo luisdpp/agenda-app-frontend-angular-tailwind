@@ -1,0 +1,94 @@
+<div class="grid grid-cols-1 gap-6" 
+     [class.lg:grid-cols-3]="userRole === 'ADMIN'"
+     [class.justify-center]="userRole !== 'ADMIN'" 
+     [class.pt-6]="userRole !== 'ADMIN'">
+    
+    <div [class.lg:col-span-1]="userRole === 'ADMIN'" 
+         [class.max-w-xl]="userRole !== 'ADMIN'"
+         [class.w-full]="userRole !== 'ADMIN'"
+         [class.mx-auto]="userRole !== 'ADMIN'"
+         class="bg-slate-900 p-6 rounded-2xl border border-slate-800 h-fit space-y-6 shadow-2xl transition-all">
+        
+        <div>
+            <h3 class="text-xl font-bold text-slate-100 flex items-center gap-2">
+                <span>📅</span> Agendar Nueva Cita
+            </h3>
+            <p class="text-xs text-slate-500 mt-1">Selecciona los parámetros para calcular los turnos disponibles.</p>
+        </div>
+
+        <form (ngSubmit)="agendarCita()" #formCita="ngForm" class="space-y-4">
+            
+            <div>
+                <label class="block text-xs font-semibold text-slate-400 mb-2 uppercase tracking-wider">1. Servicio / Categoría</label>
+                <select name="categoria" [(ngModel)]="citaForm.categoriaId" (change)="disponiblidadOnChange()" required
+                    class="w-full px-4 py-2.5 rounded-xl border border-slate-700 bg-slate-800 text-slate-100 focus:outline-none focus:border-emerald-500 transition-all text-sm cursor-pointer hover:border-slate-600">
+                    <option [ngValue]="0" disabled selected>Seleccione un servicio...</option>
+                    <option *ngFor="let cat of categoriasList" [ngValue]="cat.id">{{ cat.nombre }}</option>
+                </select>
+            </div>
+
+            <div>
+                <label class="block text-xs font-semibold text-slate-400 mb-2 uppercase tracking-wider">2. Seleccionar Fecha</label>
+                <input type="date" name="fecha" [(ngModel)]="citaForm.fecha" (change)="disponiblidadOnChange()" required
+                    class="w-full px-4 py-2.5 rounded-xl border border-slate-700 bg-slate-800 text-slate-100 focus:outline-none focus:border-emerald-500 transition-all text-sm cursor-pointer hover:border-slate-600">
+            </div>
+
+            <div *ngIf="citaForm.categoriaId > 0 && citaForm.fecha" class="space-y-2 animate-fadeIn">
+                <label class="block text-xs font-semibold text-slate-400 mb-2 uppercase tracking-wider">3. Horarios Disponibles</label>
+                
+                <div *ngIf="loadingHorarios" class="text-center py-4 text-sm text-slate-500 animate-pulse">🔍 Calculando cupos disponibles...</div>
+                <div *ngIf="!loadingHorarios && bloquesDisponiblesList.length === 0" class="text-xs text-center text-amber-500/80 bg-amber-950/20 p-4 rounded-xl border border-amber-900/40">📭 No hay franjas horarias configuradas para este día.</div>
+                
+                <div *ngIf="!loadingHorarios && bloquesDisponiblesList.length > 0" class="grid grid-cols-2 gap-2 max-h-52 overflow-y-auto pr-1">
+                    <button type="button" *ngFor="let blq of bloquesDisponiblesList" 
+                        [disabled]="!blq.disponible" 
+                        (click)="seleccionarHorario(blq.id)"
+                        [class.border-emerald-500]="citaForm.bloqueId === blq.id" 
+                        [class.bg-emerald-950]="citaForm.bloqueId === blq.id"
+                        [class.bg-opacity-30]="citaForm.bloqueId === blq.id"
+                        [class.text-emerald-400]="citaForm.bloqueId === blq.id"
+                        class="px-3 py-2 rounded-xl border text-left transition-all text-xs flex flex-col justify-between h-14 disabled:opacity-20 disabled:cursor-not-allowed bg-slate-800/40 border-slate-700/70 text-slate-300 hover:border-slate-500 transform active:scale-[0.98]">
+                        <span class="font-mono font-bold text-sm">{{ blq.horaInicio }} - {{ blq.horaFin }}</span>
+                        <span class="text-[10px] text-slate-500">Cupos: {{ blq.cuposDisponibles }} libres</span>
+                    </button>
+                </div>
+            </div>
+
+            <button type="submit" [disabled]="!formCita.valid || citaForm.bloqueId === 0"
+                class="w-full bg-emerald-600 text-slate-950 font-bold py-3 rounded-xl hover:bg-emerald-500 transition-all disabled:opacity-20 disabled:cursor-not-allowed text-sm font-semibold tracking-wide transform active:scale-[0.99] mt-4 shadow-lg shadow-emerald-900/20">
+                🚀 Confirmar Agendamiento
+            </button>
+        </form>
+    </div>
+
+    <div *ngIf="userRole === 'ADMIN'" class="lg:col-span-2 bg-slate-900 p-6 rounded-2xl border border-slate-800 h-fit shadow-2xl">
+        <h3 class="text-xl font-bold text-slate-100 mb-4">📋 Control de Citas Registradas</h3>
+        
+        <div class="overflow-x-auto">
+            <table class="w-full text-left border-collapse">
+                <thead>
+                    <tr class="border-b border-slate-800 text-slate-400 text-xs uppercase tracking-wider select-none">
+                        <th class="py-3 px-4">Fecha Cita</th>
+                        <th class="py-3 px-4">Franja Horaria</th>
+                        <th class="py-3 px-4">Usuario Dueño</th>
+                        <th class="py-3 px-4">Categoría Servicio</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-slate-800/50 text-slate-300 text-sm">
+                    <tr *ngFor="let cita of citasList" class="hover:bg-slate-800/20 transition-all">
+                        <td class="py-3.5 px-4 font-medium text-slate-200">{{ cita.fecha | date:'dd/MM/yyyy':'UTC' }}</td>
+                        <td class="py-3.5 px-4 font-mono text-xs text-emerald-400">{{ cita.bloque?.horaInicio }} - {{ cita.bloque?.horaFin }}</td>
+                        <td class="py-3.5 px-4 font-semibold text-slate-300">{{ cita.usuario?.nombre || cita.usuario?.email || 'ID: ' + cita.usuarioId }}</td>
+                        <td class="py-3.5 px-4">
+                            <span class="text-xs bg-slate-800 px-2 py-1 rounded border border-slate-700 text-slate-400">{{ cita.categoria?.nombre }}</span>
+                        </td>
+                    </tr>
+                    <tr *ngIf="citasList.length === 0">
+                        <td colspan="4" class="text-center py-8 text-sm text-slate-500 italic">📭 No hay citas agendadas en el sistema todavía.</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+</div>
